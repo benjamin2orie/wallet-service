@@ -17,20 +17,21 @@ import configuration from './config/config';
       load:[configuration]
     }),
 
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        username: config.get<string>('DB_USER'),
-        password: String(config.get<string>('DB_PASS') || 'postgres'),
-        database: config.get<string>('DB_NAME'),
-        autoLoadEntities: true,
-        synchronize: true,
-      }),
+      TypeOrmModule.forRootAsync({
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => ({
+      type: 'postgres',
+      url: config.get<string>('DB_STRING'),
+      ssl: {
+        rejectUnauthorized: false, 
+      },
+      autoLoadEntities: true,
+      synchronize: true, 
     }),
+    }),
+
+
 
     AuthModule,
     UsersModule,
