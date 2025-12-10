@@ -20,6 +20,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBody,
+  ApiHeader,
 } from '@nestjs/swagger';
 
 @ApiTags('Wallet')
@@ -50,6 +51,11 @@ export class WalletController {
   @Post('paystack/webhook')
   @ApiOperation({ summary: 'Handle Paystack webhook events' })
   @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
+  @ApiHeader({
+    name: 'x-paystack-signature',
+    description: 'SHA512 HMAC signature of raw body using Paystack secret',
+    required: true,
+  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -66,13 +72,12 @@ export class WalletController {
       },
     },
   })
-  @ApiOperation({ summary: 'Handle Paystack webhook events' })
-  @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
   async webhook(@Req() req: any) {
     const signature = req.headers['x-paystack-signature'] as string;
     const rawBody = req.rawBody
       ? req.rawBody.toString()
       : JSON.stringify(req.body);
+
     return this.wallet.webhookHandle(signature, rawBody);
   }
 
