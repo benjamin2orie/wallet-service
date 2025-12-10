@@ -50,6 +50,7 @@ export class WalletController {
 
 
 @Post('paystack/webhook')
+@UseGuards() 
 @ApiOperation({ summary: 'Handle Paystack webhook events' })
 @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
 @ApiHeader({
