@@ -7,15 +7,20 @@ import bodyParser from 'body-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   //Preserve raw body for Paystack webhook signature validation
-  app.use(
-    bodyParser.json({
-      verify: (req: any, res, buf) => {
-        req.rawBody = buf;
-      },
-    }),
-  );
+  app.use(bodyParser.json({
+    verify: (req: any, res, buf) => {
+      req.rawBody = buf;
+    },
+  }));
+  app.use(bodyParser.urlencoded({
+    extended: true,
+    verify: (req: any, res, buf) => {
+      req.rawBody = buf;
+    },
+  }));
 
-  // Swagger configuration
+
+    // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Wallet Service API')
     .setDescription('API depositing, sending and receing money within a wallet')
@@ -34,11 +39,10 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
+
   await app.listen(process.env.APP_PORT ?? 3001);
 
-  console.log(`🚀 Application is running on: :${process.env.APP_PORT}`);
-  console.log(
-    `📖 Swagger docs available at: http://localhost:${process.env.APP_PORT}/api`,
-  );
+  console.log(`🚀 Application is running on: ${process.env.APP_URL}:${process.env.APP_PORT}`);
+  console.log(`📖 Swagger docs available at: ${process.env.APP_URL}:${process.env.APP_PORT}/api`);
 }
 bootstrap();
