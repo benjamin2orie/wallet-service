@@ -1,6 +1,3 @@
-
-
-
 // src/wallet/paystack.service.ts
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
@@ -53,7 +50,9 @@ export class PaystackService {
       );
 
       if (!res.data.status) {
-        throw new InternalServerErrorException(res.data.message || 'Paystack init failed');
+        throw new InternalServerErrorException(
+          res.data.message || 'Paystack init failed',
+        );
       }
 
       return res.data.data;
@@ -71,16 +70,17 @@ export class PaystackService {
       );
 
       if (!res.data.status) {
-        throw new InternalServerErrorException(res.data.message || 'Paystack verify failed');
+        throw new InternalServerErrorException(
+          res.data.message || 'Paystack verify failed',
+        );
       }
 
       return res.data.data;
     } catch (error: any) {
       throw new InternalServerErrorException(
-        error?.response?.data?.message || 'Paystack verification request failed',
+        error?.response?.data?.message ||
+          'Paystack verification request failed',
       );
     }
   }
 }
-
-

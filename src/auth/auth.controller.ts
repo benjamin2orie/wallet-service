@@ -1,5 +1,3 @@
-
-
 // src/auth/auth.controller.ts
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,4 +17,3 @@ export class AuthController {
     return this.authService.handleGoogleCallback(req.user);
   }
 }
-

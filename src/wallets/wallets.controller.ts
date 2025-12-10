@@ -1,16 +1,30 @@
-
 import { DepositDto } from './dto/deposit.dto';
 import { TransferDto } from '../wallets/dto/transfer.dto';
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { WalletsService } from './wallets.service';
 import { JwtOrApiKeyGuard } from '../common/guards/jwt-or-api-key.guard';
 import { PermissionsGuard } from '../common/guards/permissions';
 import { RequirePermissions } from '../common/decorators/permissions.decorator';
-import { ApiTags, ApiBearerAuth, ApiSecurity, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiSecurity,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+} from '@nestjs/swagger';
 
 @ApiTags('Wallet')
-@ApiBearerAuth('jwt')              // JWT lock icon in Swagger
-@ApiSecurity('apiKey')             // API key lock icon in Swagger
+@ApiBearerAuth('jwt') // JWT lock icon in Swagger
+@ApiSecurity('apiKey') // API key lock icon in Swagger
 @Controller('wallet')
 @UseGuards(JwtOrApiKeyGuard, PermissionsGuard) //only combined guard + permissions
 export class WalletController {
@@ -23,8 +37,12 @@ export class WalletController {
   @ApiBody({ type: DepositDto })
   async deposit(@Req() req, @Body() dto: DepositDto) {
     const userId = req.user?.sub || req.user?.apiKeyUserId;
-    const userEmail = req.user?.email || req.user?.apiKeyEmail || 'service@example.com';
-    const init = await this.wallet.depositInit({ id: userId, email: userEmail }, dto.amount);
+    const userEmail =
+      req.user?.email || req.user?.apiKeyEmail || 'service@example.com';
+    const init = await this.wallet.depositInit(
+      { id: userId, email: userEmail },
+      dto.amount,
+    );
     await this.wallet.attachMetadataToTx(init.reference, { userId });
     return init;
   }
@@ -34,7 +52,9 @@ export class WalletController {
   @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
   async webhook(@Req() req: any) {
     const signature = req.headers['x-paystack-signature'] as string;
-    const rawBody = req.rawBody.toString();
+    const rawBody = req.rawBody
+      ? req.rawBody.toString()
+      : JSON.stringify(req.body);
     return this.wallet.webhookHandle(signature, rawBody);
   }
 
@@ -72,18 +92,19 @@ export class WalletController {
     return this.wallet.transactions();
   }
 
-@Post('create')
-@RequirePermissions('create')
-@ApiOperation({ summary: 'Create or ensure a wallet for a user' })
-@ApiResponse({ status: 201, description: 'Wallet created or retrieved successfully' })
-async create(@Req() req) {
-  const userId = req.user?.sub || req.user?.apiKeyUserId;
-  const wallet = await this.wallet.ensureWallet(userId);
-  return {
-    walletNumber: wallet.walletNumber,
-    balance: Number(wallet.balance),
-  };
+  @Post('create')
+  @RequirePermissions('create')
+  @ApiOperation({ summary: 'Create or ensure a wallet for a user' })
+  @ApiResponse({
+    status: 201,
+    description: 'Wallet created or retrieved successfully',
+  })
+  async create(@Req() req) {
+    const userId = req.user?.sub || req.user?.apiKeyUserId;
+    const wallet = await this.wallet.ensureWallet(userId);
+    return {
+      walletNumber: wallet.walletNumber,
+      balance: Number(wallet.balance),
+    };
+  }
 }
-}
-
-

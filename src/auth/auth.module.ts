@@ -1,6 +1,3 @@
-
-
-
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
@@ -38,8 +35,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 })
 export class AuthModule {}
 
-
-
 // import { Module } from '@nestjs/common';
 // import { JwtModule } from '@nestjs/jwt';
 // import { AuthService } from './auth.service';
@@ -63,11 +58,9 @@ export class AuthModule {}
 //     }),
 //     ],
 
-
-
 //     providers: [AuthService, GoogleStrategy],
 //     controllers:[AuthController],
 //     exports: [AuthService, JwtModule],
-    
+
 // })
 // export class AuthModule {}

@@ -11,12 +11,16 @@ export class JwtOrApiKeyGuard implements CanActivate {
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest();
-    const hasBearer = (req.headers['authorization'] || '').startsWith('Bearer ');
+    const hasBearer = (req.headers['authorization'] || '').startsWith(
+      'Bearer ',
+    );
 
     if (hasBearer) {
       try {
         const result = this.jwtGuard.canActivate(ctx);
-        return isObservable(result) ? await lastValueFrom(result) : await result;
+        return isObservable(result)
+          ? await lastValueFrom(result)
+          : await result;
       } catch {
         return false;
       }

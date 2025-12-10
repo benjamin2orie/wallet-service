@@ -1,4 +1,3 @@
-
 // src/wallet/entities/transaction.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 

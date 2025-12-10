@@ -1,8 +1,9 @@
-
-
-
 // src/wallet/wallet.service.ts
-import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
@@ -28,16 +29,25 @@ export class WalletsService {
   }
 
   generateWalletNumber(): string {
-    return Array.from({ length: 13 }, () => Math.floor(Math.random() * 10)).join('');
+    return Array.from({ length: 13 }, () =>
+      Math.floor(Math.random() * 10),
+    ).join('');
   }
 
   async depositInit(user: { id: string; email: string }, amount: number) {
-
     if (!amount || isNaN(amount)) {
-    throw new BadRequestException('Deposit amount is required and must be a number');
+      throw new BadRequestException(
+        'Deposit amount is required and must be a number',
+      );
     }
     const ref = crypto.randomUUID();
-    const t = this.txs.create({ reference: ref, type: 'deposit', amount: String(amount), status: 'pending', metadata: { userId: user.id }, });
+    const t = this.txs.create({
+      reference: ref,
+      type: 'deposit',
+      amount: String(amount),
+      status: 'pending',
+      metadata: { userId: user.id },
+    });
     await this.txs.save(t);
     const init = await this.paystack.initialize(user.email, amount, ref);
     return { reference: ref, authorization_url: init.authorization_url };
@@ -45,8 +55,12 @@ export class WalletsService {
 
   async webhookHandle(signature: string | undefined, rawBody: string) {
     // Validate signature: SHA512 HMAC of raw body using Paystack secret
-    const expected = crypto.createHmac('sha512', process.env.PAYSTACK_SECRET_KEY!).update(rawBody).digest('hex');
-    if (!signature || signature !== expected) throw new ForbiddenException('Invalid signature');
+    const expected = crypto
+      .createHmac('sha512', process.env.PAYSTACK_SECRET_KEY!)
+      .update(rawBody)
+      .digest('hex');
+    if (!signature || signature !== expected)
+      throw new ForbiddenException('Invalid signature');
 
     const event = JSON.parse(rawBody);
     const ref = event?.data?.reference;
@@ -58,9 +72,15 @@ export class WalletsService {
 
     // Idempotency: credit only once on success if not credited
     if (status === 'success') {
-      await this.ds.transaction(async manager => {
-        const lockedTx = await manager.findOne(Transaction, { where: { id: tx.id }, lock: { mode: 'pessimistic_write' } });
-        if (!lockedTx) throw new BadRequestException('Transaction not found during processing');
+      await this.ds.transaction(async (manager) => {
+        const lockedTx = await manager.findOne(Transaction, {
+          where: { id: tx.id },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!lockedTx)
+          throw new BadRequestException(
+            'Transaction not found during processing',
+          );
         if (lockedTx.credited) return; // already credited
 
         lockedTx.status = 'success';
@@ -70,8 +90,12 @@ export class WalletsService {
 
         // For deposits, we must know which user/wallet to credit.
         const metaUserId = lockedTx.metadata?.userId ?? tx.metadata?.userId;
-        if (!metaUserId) throw new BadRequestException('Missing transaction user link');
-        const wallet = await manager.findOne(Wallet, { where: { userId: metaUserId }, lock: { mode: 'pessimistic_write' } });
+        if (!metaUserId)
+          throw new BadRequestException('Missing transaction user link');
+        const wallet = await manager.findOne(Wallet, {
+          where: { userId: metaUserId },
+          lock: { mode: 'pessimistic_write' },
+        });
         if (!wallet) throw new BadRequestException('Wallet not found');
         wallet.balance = String(BigInt(wallet.balance) + BigInt(amount));
         await manager.save(wallet);
@@ -98,13 +122,25 @@ export class WalletsService {
     return { balance: Number(w.balance) };
   }
 
-  async transfer(senderId: string, recipientWalletNumber: string, amount: number) {
+  async transfer(
+    senderId: string,
+    recipientWalletNumber: string,
+    amount: number,
+  ) {
     if (amount <= 0) throw new BadRequestException('Invalid amount');
-    await this.ds.transaction(async manager => {
-      const senderWallet = await manager.findOne(Wallet, { where: { userId: senderId }, lock: { mode: 'pessimistic_write' } });
-      if (!senderWallet) throw new BadRequestException('Sender wallet not found');
-      const recipientWallet = await manager.findOne(Wallet, { where: { walletNumber: recipientWalletNumber }, lock: { mode: 'pessimistic_write' } });
-      if (!recipientWallet) throw new BadRequestException('Recipient not found');
+    await this.ds.transaction(async (manager) => {
+      const senderWallet = await manager.findOne(Wallet, {
+        where: { userId: senderId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!senderWallet)
+        throw new BadRequestException('Sender wallet not found');
+      const recipientWallet = await manager.findOne(Wallet, {
+        where: { walletNumber: recipientWalletNumber },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!recipientWallet)
+        throw new BadRequestException('Recipient not found');
 
       const sBal = BigInt(senderWallet.balance);
       const amt = BigInt(amount);
@@ -131,6 +167,10 @@ export class WalletsService {
 
   async transactions() {
     const list = await this.txs.find({ order: { createdAt: 'DESC' } });
-    return list.map(t => ({ type: t.type, amount: Number(t.amount), status: t.status }));
+    return list.map((t) => ({
+      type: t.type,
+      amount: Number(t.amount),
+      status: t.status,
+    }));
   }
 }

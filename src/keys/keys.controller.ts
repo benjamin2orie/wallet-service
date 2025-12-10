@@ -1,5 +1,3 @@
-
-
 // src/keys/keys.controller.ts
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { KeysService } from './keys.service';
@@ -18,9 +16,11 @@ export class KeysController {
   }
 
   @Post('rollover')
-  async rollover(@Req() req, @Body() body: { expired_key_id: string; expiry: '1H'|'1D'|'1M'|'1Y' }) {
+  async rollover(
+    @Req() req,
+    @Body() body: { expired_key_id: string; expiry: '1H' | '1D' | '1M' | '1Y' },
+  ) {
     const userId = req.user?.sub;
     return this.keys.rollover(userId, body.expired_key_id, body.expiry);
   }
 }
-

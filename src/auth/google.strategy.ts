@@ -1,13 +1,8 @@
-
-
-
-
 // src/auth/google.strategy.ts
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile } from 'passport-google-oauth20';
 import { ConfigService } from '@nestjs/config';
-
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -16,9 +11,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const clientSecret = configService.get<string>('GOOGLE_CLIENT_SECRET');
     const callbackURL = configService.get<string>('GOOGLE_CALLBACK_URL');
 
-
     super({
-       clientID: clientID!,
+      clientID: clientID!,
       clientSecret: clientSecret!,
       callbackURL: callbackURL!,
       scope: ['email', 'profile'],
@@ -33,7 +27,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const user = {
       googleId: id,
       email: emails?.[0]?.value || null,
-      name: displayName || `${name?.givenName || ''} ${name?.familyName || ''}`.trim(),
+      name:
+        displayName ||
+        `${name?.givenName || ''} ${name?.familyName || ''}`.trim(),
       photo: photos?.[0]?.value || null,
       accessToken,
     };
@@ -41,4 +37,3 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     return user;
   }
 }
-

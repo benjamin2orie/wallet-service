@@ -11,27 +11,24 @@ import configuration from './config/config';
 
 @Module({
   imports: [
-
     ConfigModule.forRoot({
-      isGlobal: true, 
-      load:[configuration]
+      isGlobal: true,
+      load: [configuration],
     }),
 
-      TypeOrmModule.forRootAsync({
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: (config: ConfigService) => ({
-      type: 'postgres',
-      url: config.get<string>('DB_STRING'),
-      ssl: {
-        rejectUnauthorized: false, 
-      },
-      autoLoadEntities: true,
-      synchronize: true, 
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        url: config.get<string>('DB_STRING'),
+        ssl: {
+          rejectUnauthorized: false,
+        },
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
     }),
-    }),
-
-
 
     AuthModule,
     UsersModule,

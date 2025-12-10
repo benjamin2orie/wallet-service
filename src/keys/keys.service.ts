@@ -1,6 +1,9 @@
-
 // src/keys/keys.service.ts
-import { Injectable, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ApiKey } from '../keys/entities/api-keys.entity';
@@ -13,9 +16,14 @@ export class KeysService {
 
   async create(userId: string, dto: CreateKeyDto) {
     const activeCount = await this.repo.count({
-      where: { userId, revoked: false, expiresAt: () => 'expires_at > now()' } as any,
+      where: {
+        userId,
+        revoked: false,
+        expiresAt: () => 'expires_at > now()',
+      } as any,
     });
-    if (activeCount >= 5) throw new ForbiddenException('Maximum of 5 active API keys reached');
+    if (activeCount >= 5)
+      throw new ForbiddenException('Maximum of 5 active API keys reached');
 
     const raw = randomKey();
     const entity = this.repo.create({
@@ -29,8 +37,14 @@ export class KeysService {
     return { api_key: raw, expires_at: entity.expiresAt.toISOString() };
   }
 
-  async rollover(userId: string, expiredKeyId: string, expiry: '1H' | '1D' | '1M' | '1Y') {
-    const old = await this.repo.findOne({ where: { id: expiredKeyId, userId } });
+  async rollover(
+    userId: string,
+    expiredKeyId: string,
+    expiry: '1H' | '1D' | '1M' | '1Y',
+  ) {
+    const old = await this.repo.findOne({
+      where: { id: expiredKeyId, userId },
+    });
     if (!old) throw new BadRequestException('Key not found');
     if (old.revoked === true || old.expiresAt > new Date()) {
       throw new BadRequestException('Key is not expired');
@@ -56,4 +70,3 @@ export class KeysService {
     return apiKey;
   }
 }
-
