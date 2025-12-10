@@ -24,15 +24,15 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Wallet')
-@ApiBearerAuth('jwt') // JWT lock icon in Swagger
-@ApiSecurity('apiKey') // API key lock icon in Swagger
 @Controller('wallet')
-@UseGuards(JwtOrApiKeyGuard, PermissionsGuard) //only combined guard + permissions
+@UseGuards(JwtOrApiKeyGuard, PermissionsGuard) // still applies globally
 export class WalletController {
   constructor(private wallet: WalletsService) {}
 
   @Post('deposit')
   @RequirePermissions('deposit')
+  @ApiBearerAuth('jwt')
+  @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Initiate a deposit transaction' })
   @ApiResponse({ status: 201, description: 'Deposit initialized successfully' })
   @ApiBody({ type: DepositDto })
@@ -48,50 +48,49 @@ export class WalletController {
     return init;
   }
 
-
-@Post('paystack/webhook')
-@UseGuards() 
-@ApiOperation({ summary: 'Handle Paystack webhook events' })
-@ApiResponse({ status: 200, description: 'Webhook processed successfully' })
-@ApiHeader({
-  name: 'x-paystack-signature',
-  description: 'SHA512 HMAC signature of raw body using Paystack secret',
-  required: true,
-})
-@ApiBody({
-  schema: {
-    type: 'object',
-    properties: {
-      event: { type: 'string', example: 'charge.success' },
-      data: {
-        type: 'object',
-        properties: {
-          reference: { type: 'string', example: 'abc123' },
-          status: { type: 'string', example: 'success' },
-          amount: { type: 'number', example: 5000 },
+  @Post('paystack/webhook')
+  @UseGuards() // disables guards
+  @ApiOperation({ summary: 'Handle Paystack webhook events' })
+  @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
+  @ApiHeader({
+    name: 'x-paystack-signature',
+    description: 'SHA512 HMAC signature of raw body using Paystack secret',
+    required: true,
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        event: { type: 'string', example: 'charge.success' },
+        data: {
+          type: 'object',
+          properties: {
+            reference: { type: 'string', example: 'abc123' },
+            status: { type: 'string', example: 'success' },
+            amount: { type: 'number', example: 5000 },
+          },
         },
       },
     },
-  },
-})
-async webhook(@Req() req: any) {
-  // Log everything for visibility
-  console.log('🔥 Webhook hit');
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
+  })
+  async webhook(@Req() req: any) {
+    console.log('🔥 Webhook hit');
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
 
-  // Extract signature and raw body
-  const signature = req.headers['x-paystack-signature'] as string;
-  const rawBody = req.rawBody
-    ? req.rawBody.toString()
-    : JSON.stringify(req.body);
+    const signature = req.headers['x-paystack-signature'] as string;
+    console.log('signature:', signature);
+    const rawBody = req.rawBody
+      ? req.rawBody.toString()
+      : JSON.stringify(req.body);
 
-  //  Call your service handler
-  return this.wallet.webhookHandle(signature, rawBody);
-}
-
+    console.log('Raw body string:', rawBody);
+    return this.wallet.webhookHandle(signature, rawBody);
+  }
 
   @Get('deposit/:reference/status')
+  @ApiBearerAuth('jwt')
+  @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Check deposit transaction status' })
   @ApiResponse({ status: 200, description: 'Transaction status returned' })
   async status(@Param('reference') reference: string) {
@@ -100,6 +99,8 @@ async webhook(@Req() req: any) {
 
   @Get('balance')
   @RequirePermissions('read')
+  @ApiBearerAuth('jwt')
+  @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Get wallet balance' })
   @ApiResponse({ status: 200, description: 'Balance retrieved successfully' })
   async balance(@Req() req) {
@@ -109,6 +110,8 @@ async webhook(@Req() req: any) {
 
   @Post('transfer')
   @RequirePermissions('transfer')
+  @ApiBearerAuth('jwt')
+  @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Transfer funds to another wallet' })
   @ApiResponse({ status: 201, description: 'Transfer completed successfully' })
   @ApiBody({ type: TransferDto })
@@ -119,6 +122,8 @@ async webhook(@Req() req: any) {
 
   @Get('transactions')
   @RequirePermissions('read')
+  @ApiBearerAuth('jwt')
+  @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Get transaction history' })
   @ApiResponse({ status: 200, description: 'Transaction history retrieved' })
   async history() {
@@ -127,6 +132,8 @@ async webhook(@Req() req: any) {
 
   @Post('create')
   @RequirePermissions('create')
+  @ApiBearerAuth('jwt')
+  @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Create or ensure a wallet for a user' })
   @ApiResponse({
     status: 201,

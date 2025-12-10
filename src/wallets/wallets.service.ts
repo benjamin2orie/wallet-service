@@ -119,6 +119,7 @@ export class WalletsService {
     }
     return { status: true };
   }
+ 
 
   async attachMetadataToTx(reference: string, metadata: any) {
     return this.txs.update({ reference }, { metadata });
