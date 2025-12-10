@@ -50,6 +50,24 @@ export class WalletController {
   @Post('paystack/webhook')
   @ApiOperation({ summary: 'Handle Paystack webhook events' })
   @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        event: { type: 'string', example: 'charge.success' },
+        data: {
+          type: 'object',
+          properties: {
+            reference: { type: 'string', example: 'abc123' },
+            status: { type: 'string', example: 'success' },
+            amount: { type: 'number', example: 5000 },
+          },
+        },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Handle Paystack webhook events' })
+  @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
   async webhook(@Req() req: any) {
     const signature = req.headers['x-paystack-signature'] as string;
     const rawBody = req.rawBody
