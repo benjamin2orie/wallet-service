@@ -48,38 +48,47 @@ export class WalletController {
     return init;
   }
 
-  @Post('paystack/webhook')
-  @ApiOperation({ summary: 'Handle Paystack webhook events' })
-  @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
-  @ApiHeader({
-    name: 'x-paystack-signature',
-    description: 'SHA512 HMAC signature of raw body using Paystack secret',
-    required: true,
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        event: { type: 'string', example: 'charge.success' },
-        data: {
-          type: 'object',
-          properties: {
-            reference: { type: 'string', example: 'abc123' },
-            status: { type: 'string', example: 'success' },
-            amount: { type: 'number', example: 5000 },
-          },
+
+@Post('paystack/webhook')
+@ApiOperation({ summary: 'Handle Paystack webhook events' })
+@ApiResponse({ status: 200, description: 'Webhook processed successfully' })
+@ApiHeader({
+  name: 'x-paystack-signature',
+  description: 'SHA512 HMAC signature of raw body using Paystack secret',
+  required: true,
+})
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      event: { type: 'string', example: 'charge.success' },
+      data: {
+        type: 'object',
+        properties: {
+          reference: { type: 'string', example: 'abc123' },
+          status: { type: 'string', example: 'success' },
+          amount: { type: 'number', example: 5000 },
         },
       },
     },
-  })
-  async webhook(@Req() req: any) {
-    const signature = req.headers['x-paystack-signature'] as string;
-    const rawBody = req.rawBody
-      ? req.rawBody.toString()
-      : JSON.stringify(req.body);
+  },
+})
+async webhook(@Req() req: any) {
+  // Log everything for visibility
+  console.log('🔥 Webhook hit');
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
 
-    return this.wallet.webhookHandle(signature, rawBody);
-  }
+  // Extract signature and raw body
+  const signature = req.headers['x-paystack-signature'] as string;
+  const rawBody = req.rawBody
+    ? req.rawBody.toString()
+    : JSON.stringify(req.body);
+
+  //  Call your service handler
+  return this.wallet.webhookHandle(signature, rawBody);
+}
+
 
   @Get('deposit/:reference/status')
   @ApiOperation({ summary: 'Check deposit transaction status' })
