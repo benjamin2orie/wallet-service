@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +25,14 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+    //Preserve raw body for Paystack webhook signature validation
+  app.use(bodyParser.json({
+    verify: (req: any, res, buf) => {
+      req.rawBody = buf;
+    },
+  }));
   await app.listen(process.env.APP_PORT ?? 3001);
 
 

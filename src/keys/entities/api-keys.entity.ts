@@ -12,7 +12,7 @@ export class ApiKey {
 
   @Index() @Column() keyHash: string;
 
-  @Column('simple-array') permissions: ('deposit' | 'transfer' | 'read')[];
+  @Column('simple-array') permissions: ('deposit' | 'transfer' | 'read' | 'create')[];
 
   @Column({ type: 'timestamptz' }) expiresAt: Date;
 

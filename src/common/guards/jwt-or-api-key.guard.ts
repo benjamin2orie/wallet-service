@@ -25,23 +25,3 @@ export class JwtOrApiKeyGuard implements CanActivate {
     return this.apiKeyGuard.canActivate(ctx);
   }
 }
-
-
-
-
-
-// // src/common/guards/jwt-or-api-key.guard.ts
-// import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-// import { AuthGuard } from '@nestjs/passport';
-
-// @Injectable()
-// export class JwtOrApiKeyGuard extends (AuthGuard('jwt') as any) implements CanActivate {
-//   async canActivate(ctx: ExecutionContext) {
-//     const req = ctx.switchToHttp().getRequest();
-//     const hasBearer = (req.headers['authorization'] || '').startsWith('Bearer ');
-//     if (hasBearer) {
-//       return super.canActivate(ctx);
-//     }
-//     return true; // fallthrough to ApiKeyGuard and PermissionsGuard
-//   }
-// }

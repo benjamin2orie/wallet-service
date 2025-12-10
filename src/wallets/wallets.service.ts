@@ -32,8 +32,12 @@ export class WalletsService {
   }
 
   async depositInit(user: { id: string; email: string }, amount: number) {
+
+    if (!amount || isNaN(amount)) {
+    throw new BadRequestException('Deposit amount is required and must be a number');
+    }
     const ref = crypto.randomUUID();
-    const t = this.txs.create({ reference: ref, type: 'deposit', amount: String(amount), status: 'pending' });
+    const t = this.txs.create({ reference: ref, type: 'deposit', amount: String(amount), status: 'pending', metadata: { userId: user.id }, });
     await this.txs.save(t);
     const init = await this.paystack.initialize(user.email, amount, ref);
     return { reference: ref, authorization_url: init.authorization_url };
@@ -65,7 +69,6 @@ export class WalletsService {
         await manager.save(lockedTx);
 
         // For deposits, we must know which user/wallet to credit.
-        // One reliable approach: store userId in tx.metadata on init.
         const metaUserId = lockedTx.metadata?.userId ?? tx.metadata?.userId;
         if (!metaUserId) throw new BadRequestException('Missing transaction user link');
         const wallet = await manager.findOne(Wallet, { where: { userId: metaUserId }, lock: { mode: 'pessimistic_write' } });

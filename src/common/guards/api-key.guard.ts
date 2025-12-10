@@ -29,21 +29,3 @@ export class ApiKeyGuard implements CanActivate {
   }
 }
 
-
-// // src/common/guards/api-key.guard.ts
-// import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-// import { KeysService } from '../../keys/keys.service';
-
-// @Injectable()
-// export class ApiKeyGuard implements CanActivate {
-//   constructor(private keys: KeysService) {}
-//   async canActivate(ctx: ExecutionContext) {
-//     const req = ctx.switchToHttp().getRequest();
-//     const rawKey = req.headers['x-api-key'] as string | undefined;
-//     if (!rawKey) return true; // allow other guards (JWT)
-//     const apiKey = await this.keys.validate(rawKey);
-//     if (!apiKey) return false;
-//     req.apiKey = apiKey;
-//     return true;
-//   }
-// }

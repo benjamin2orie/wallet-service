@@ -1,5 +1,5 @@
 
 // src/common/decorators/permissions.decorator.ts
 import { SetMetadata } from '@nestjs/common';
-export const RequirePermissions = (...perms: ('deposit' | 'transfer' | 'read')[]) =>
+export const RequirePermissions = (...perms: ('deposit' | 'transfer' | 'read' | 'create')[]) =>
   SetMetadata('requiredPermissions', perms);
