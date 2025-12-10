@@ -138,7 +138,7 @@ export class WalletController {
   @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
-  @ApiOperation({ summary: 'Create or ensure a wallet for a user' })
+  @ApiOperation({ summary: 'Create or issue a wallet for a user' })
   @ApiResponse({
     status: 201,
     description: 'Wallet created or retrieved successfully',

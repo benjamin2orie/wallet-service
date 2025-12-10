@@ -45,9 +45,7 @@ async function bootstrap() {
   const port = process.env.APP_PORT || 3001;
   await app.listen(port, '0.0.0.0');
 
-  console.log(
-    `🚀 Application is running on: ${process.env.APP_URL}:${app}`,
-  );
+  console.log(`🚀 Application is running on: ${process.env.APP_URL}:${app}`);
   console.log(
     `📖 Swagger docs available at: ${process.env.APP_URL}:${app}/api`,
   );

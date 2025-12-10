@@ -1,10 +1,30 @@
 // src/keys/dto/create-key.dto.ts
 import { IsIn, IsArray, ArrayNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateKeyDto {
-  @IsString() name: string;
+  @ApiProperty({
+    description: 'Name of the API key',
+    example: 'service-key-1',
+  })
+  @IsString()
+  name: string;
 
-  @IsArray() @ArrayNotEmpty() permissions: ('deposit' | 'transfer' | 'read')[];
+  @ApiProperty({
+    description: 'Permissions assigned to the key',
+    example: ['deposit', 'transfer'],
+    isArray: true,
+    enum: ['deposit', 'transfer', 'read'],
+  })
+  @IsArray()
+  @ArrayNotEmpty()
+  permissions: ('deposit' | 'transfer' | 'read' | 'create')[];
 
-  @IsIn(['1H', '1D', '1M', '1Y']) expiry: '1H' | '1D' | '1M' | '1Y';
+  @ApiProperty({
+    description: 'Expiry duration of the key',
+    example: '1D',
+    enum: ['1H', '1D', '1M', '1Y'],
+  })
+  @IsIn(['1H', '1D', '1M', '1Y'])
+  expiry: '1H' | '1D' | '1M' | '1Y';
 }

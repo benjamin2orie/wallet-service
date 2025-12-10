@@ -15,13 +15,13 @@ export class KeysService {
   constructor(@InjectRepository(ApiKey) private repo: Repository<ApiKey>) {}
 
   async create(userId: string, dto: CreateKeyDto) {
-    const activeCount = await this.repo.count({
-      where: {
-        userId,
-        revoked: false,
-        expiresAt: () => 'expires_at > now()',
-      } as any,
-    });
+    const activeCount = await this.repo
+      .createQueryBuilder('key')
+      .where('key.userId = :userId', { userId })
+      .andWhere('key.revoked = false')
+      .andWhere('key.expiresAt > NOW()')
+      .getCount();
+
     if (activeCount >= 5)
       throw new ForbiddenException('Maximum of 5 active API keys reached');
 
