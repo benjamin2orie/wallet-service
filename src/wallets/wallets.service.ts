@@ -10,6 +10,7 @@ import { Wallet } from './entities/wallet.entity';
 import { Transaction } from './entities/transaction.entity';
 import { PaystackService } from './paystack.service';
 import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class WalletsService {
@@ -18,6 +19,7 @@ export class WalletsService {
     @InjectRepository(Transaction) private txs: Repository<Transaction>,
     private ds: DataSource,
     private paystack: PaystackService,
+    private readonly configService: ConfigService,
   ) {}
 
   async ensureWallet(userId: string) {
@@ -55,8 +57,19 @@ export class WalletsService {
 
   async webhookHandle(signature: string | undefined, rawBody: string) {
     // Validate signature: SHA512 HMAC of raw body using Paystack secret
+
+    if (!rawBody) {
+      throw new BadRequestException(
+        'Missing raw body for signature validation',
+      );
+    }
+
+    const secret = this.configService.get<string>('PAYSTACK_SECRET_KEY');
+    if (!secret) {
+      throw new BadRequestException('Paystack secret key not configured');
+    }
     const expected = crypto
-      .createHmac('sha512', process.env.PAYSTACK_SECRET_KEY!)
+      .createHmac('sha512', secret)
       .update(rawBody)
       .digest('hex');
     if (!signature || signature !== expected)
