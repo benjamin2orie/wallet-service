@@ -16,10 +16,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const clientSecret = configService.get<string>('GOOGLE_CLIENT_SECRET');
     const callbackURL = configService.get<string>('GOOGLE_CALLBACK_URL');
 
-    console.log('ConfigService loaded values:');
-    console.log('GOOGLE_CLIENT_ID:', clientID);
-    console.log('GOOGLE_CLIENT_SECRET:', clientSecret ? 'loaded' : 'undefined');
-    console.log('GOOGLE_CALLBACK_URL:', callbackURL);
 
     super({
        clientID: clientID!,

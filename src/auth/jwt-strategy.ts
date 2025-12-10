@@ -10,8 +10,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly configService:ConfigService) {
     
     const jwtSecret = configService.get<string>('JWT_SECRET')!
-      console.log('ConfigService loaded values:');
-    console.log('GOOGLE_CLIENT_ID:', jwtSecret);
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: jwtSecret,
