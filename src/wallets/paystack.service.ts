@@ -46,7 +46,7 @@ export class PaystackService {
     try {
       const res = await this.axios.post<PaystackResponse<InitData>>(
         '/transaction/initialize',
-        { email, amount, reference },
+        { email, amount:amount * 100, reference },
       );
 
       if (!res.data.status) {

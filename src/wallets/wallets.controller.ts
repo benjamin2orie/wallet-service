@@ -25,11 +25,11 @@ import {
 
 @ApiTags('Wallet')
 @Controller('wallet')
-@UseGuards(JwtOrApiKeyGuard, PermissionsGuard) // still applies globally
 export class WalletController {
   constructor(private wallet: WalletsService) {}
 
   @Post('deposit')
+  @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @RequirePermissions('deposit')
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
@@ -49,7 +49,6 @@ export class WalletController {
   }
 
   @Post('paystack/webhook')
-  @UseGuards() // disables guards
   @ApiOperation({ summary: 'Handle Paystack webhook events' })
   @ApiResponse({ status: 200, description: 'Webhook processed successfully' })
   @ApiHeader({
@@ -89,6 +88,7 @@ export class WalletController {
   }
 
   @Get('deposit/:reference/status')
+  @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Check deposit transaction status' })
@@ -99,6 +99,7 @@ export class WalletController {
 
   @Get('balance')
   @RequirePermissions('read')
+  @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Get wallet balance' })
@@ -110,6 +111,7 @@ export class WalletController {
 
   @Post('transfer')
   @RequirePermissions('transfer')
+  @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Transfer funds to another wallet' })
@@ -122,6 +124,7 @@ export class WalletController {
 
   @Get('transactions')
   @RequirePermissions('read')
+  @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Get transaction history' })
@@ -132,6 +135,7 @@ export class WalletController {
 
   @Post('create')
   @RequirePermissions('create')
+  @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
   @ApiOperation({ summary: 'Create or ensure a wallet for a user' })
