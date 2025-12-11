@@ -8,6 +8,7 @@ import {
   Post,
   Req,
   UseGuards,
+  
 } from '@nestjs/common';
 import { WalletsService } from './wallets.service';
 import { JwtOrApiKeyGuard } from '../common/guards/jwt-or-api-key.guard';
@@ -30,9 +31,10 @@ export class WalletController {
 
   @Post('deposit')
   @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
-  @RequirePermissions('deposit')
+  
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
+  @RequirePermissions('deposit')
   @ApiOperation({ summary: 'Initiate a deposit transaction' })
   @ApiResponse({ status: 201, description: 'Deposit initialized successfully' })
   @ApiBody({ type: DepositDto })
@@ -91,6 +93,7 @@ export class WalletController {
   @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
+  @RequirePermissions('read')
   @ApiOperation({ summary: 'Check deposit transaction status' })
   @ApiResponse({ status: 200, description: 'Transaction status returned' })
   async status(@Param('reference') reference: string) {
@@ -98,10 +101,10 @@ export class WalletController {
   }
 
   @Get('balance')
-  @RequirePermissions('read')
   @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
+  @RequirePermissions('read')
   @ApiOperation({ summary: 'Get wallet balance' })
   @ApiResponse({ status: 200, description: 'Balance retrieved successfully' })
   async balance(@Req() req) {
@@ -110,10 +113,10 @@ export class WalletController {
   }
 
   @Post('transfer')
-  @RequirePermissions('transfer')
   @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
+  @RequirePermissions('transfer')
   @ApiOperation({ summary: 'Transfer funds to another wallet' })
   @ApiResponse({ status: 201, description: 'Transfer completed successfully' })
   @ApiBody({ type: TransferDto })
@@ -123,10 +126,10 @@ export class WalletController {
   }
 
   @Get('transactions')
-  @RequirePermissions('read')
   @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
+  @RequirePermissions('read')
   @ApiOperation({ summary: 'Get transaction history' })
   @ApiResponse({ status: 200, description: 'Transaction history retrieved' })
   async history() {
@@ -134,10 +137,10 @@ export class WalletController {
   }
 
   @Post('create')
-  @RequirePermissions('create')
   @UseGuards(JwtOrApiKeyGuard, PermissionsGuard)
   @ApiBearerAuth('jwt')
   @ApiSecurity('apiKey')
+  @RequirePermissions('create')
   @ApiOperation({ summary: 'Create or issue a wallet for a user' })
   @ApiResponse({
     status: 201,
@@ -151,4 +154,5 @@ export class WalletController {
       balance: Number(wallet.balance),
     };
   }
+  
 }

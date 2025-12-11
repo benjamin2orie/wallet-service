@@ -46,9 +46,14 @@ export class KeysService {
       where: { id: expiredKeyId, userId },
     });
     if (!old) throw new BadRequestException('Key not found');
-    if (old.revoked === true || old.expiresAt > new Date()) {
+    if (old.revoked === true) {
+      throw new BadRequestException('Key is revoked');
+    }
+
+    if (old.expiresAt.getTime() > Date.now()) {
       throw new BadRequestException('Key is not expired');
     }
+
     const raw = randomKey();
     const entity = this.repo.create({
       userId,

@@ -46,6 +46,9 @@ lerna-debug.log*
 .temp
 .tmp
 
+docker-compose.ec2.yml
+Dockerfile.ec2
+
 # Runtime data
 pids
 *.pid
